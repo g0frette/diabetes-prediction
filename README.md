@@ -73,8 +73,4 @@ The selected tree scored 84.31% accuracy and 88.57% Positive-class F1 on 51 test
 
 Dataset: *Early Stage Diabetes Risk Prediction* (2020), UCI Machine Learning Repository, https://doi.org/10.24432/C5VG8H. Licensed CC BY 4.0; retain attribution. The original CSV is included unchanged.
 
-## GitHub
 
-This folder is the standalone project; no lesson folders or virtual environments are needed. No Git repository, commit, remote, or push was created during preparation. Review the files before adding them to your personal repository. A private repository does not automatically make a deployed API private.
-
-The app is local only. Public deployment and deployed checks are still pending.
