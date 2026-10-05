@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Diabetes Model Demo</title>
+</head>
+<body>
+    <h1>Diabetes Model Demo</h1>
+
+    <p>Educational project only. Not a diagnosis or medical advice.</p>
+    <p>Use fictional data while testing.</p>
+
+    <form id="prediction-form">
+        <label for="age">Age:</label>
+        <input id="age" name="age" type="number" min="1" max="120" step="1" required>
+        <br><br>
+
+        <label for="gender">Gender (dataset category):</label>
+        <select id="gender" name="gender" required>
+            <option value="">Choose an option</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+
+        <br><br>
+        <label for="polyuria">Polyuria (dataset category):</label>
+        <select id ="polyuria" name="polyuria" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="polydipsia">Polydipsia:</label>
+        <select id="polydipsia" name="polydipsia" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="sudden_weight_loss">Sudden weight loss:</label>
+        <select id="sudden_weight_loss" name="sudden_weight_loss" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="weakness">Weakness:</label>
+        <select id="weakness" name="weakness" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="polyphagia">Polyphagia:</label>
+        <select id="polyphagia" name="polyphagia" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="genital_thrush">Genital thrush:</label>
+        <select id="genital_thrush" name="genital_thrush" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="visual_blurring">Visual blurring:</label>
+        <select id="visual_blurring" name="visual_blurring" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="itching">Itching:</label>
+        <select id="itching" name="itching" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="irritability">Irritability:</label>
+        <select id="irritability" name="irritability" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="delayed_healing">Delayed healing:</label>
+        <select id="delayed_healing" name="delayed_healing" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="partial_paresis">Partial paresis:</label>
+        <select id="partial_paresis" name="partial_paresis" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="muscle_stiffness">Muscle stiffness:</label>
+        <select id="muscle_stiffness" name="muscle_stiffness" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="alopecia">Alopecia:</label>
+        <select id="alopecia" name="alopecia" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <label for="obesity">Obesity:</label>
+        <select id="obesity" name="obesity" required>
+            <option value="">Choose an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br><br>
+
+        <button type="submit" id ="predict-button">Predict</button>
+    </form>
+
+    <p id="result" role="status"></p>
+
+    <script>
+    const form = document.getElementById("prediction-form");
+    const result = document.getElementById("result");
+    const button = document.getElementById("predict-button");
+    
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const payload = Object.fromEntries(new FormData(form));
+        payload.age = Number(payload.age);
+
+        button.disabled = true;
+        result.textContent = "Getting prediction...";
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        try {
+            const response = await fetch("/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload),   
+                signal: controller.signal
+            });
+
+            if (!response.ok) {
+                if (response.status === 422) {
+                    throw new Error("Please check your input values.");
+                }
+
+                throw new Error("The server could not generate a prediction.");
+            }
+
+            const data = await response.json();
+
+            if (
+                !["Positive", "Negative"].includes(data.predicted_class) ||
+                typeof data.disclaimer !== "string"
+            ) {
+                throw new Error("The server returned an unexpected response.");
+            }
+
+            result.textContent =
+                "Predicted dataset class: " + data.predicted_class +
+                ". " + data.disclaimer;
+
+        } catch (error) {
+            if (controller.signal.aborted) {
+            result.textContent = "The request timed out. Please try again.";
+            } else {
+                result.textContent = error instanceof Error
+                ? error.message
+                 : "Unable to complete the request.";}
+
+        } finally {
+            clearTimeout(timeoutId);
+            button.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

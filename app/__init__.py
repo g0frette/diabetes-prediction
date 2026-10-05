@@ -1,0 +1,1 @@
+"""Diabetes prediction API package."""
